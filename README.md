@@ -4,7 +4,7 @@ A small Clojure library for converting [CommonMark][1] markdown to [clj-pdf][2] 
 
 This library relies on top of [commonmark-hiccup][3].
 
-This is alpha software. Possible breaking changes can be expected. Feel fres to contribute!
+This is alpha software. Possible breaking changes can be expected. Feel free to contribute!
 
 [1]: http://spec.commonmark.org/
 [2]: https://github.com/yogthos/clj-pdf
