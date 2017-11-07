@@ -12,10 +12,7 @@
               :h4 {:style {:size 13}}
               :h5 {:style {:size 12}}
               :h6 {:style {:size 11}}}
-   :image     {:xscale    1
-               :yscale    1
-               :pad-left  10
-               :pad-right 10}
+   :image     {}
    :line      {}
    :list      {:ol {:numbered true}
                :ul {:symbol   "• "}}

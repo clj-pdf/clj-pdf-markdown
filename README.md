@@ -58,15 +58,12 @@ Any custom map provided will the merged to following the default map used by the
               :h4 {:style {:size 13}}
               :h5 {:style {:size 12}}
               :h6 {:style {:size 11}}}
-   :image     {:xscale    1
-               :yscale    1
-               :pad-left  10
-               :pad-right 10}
+   :image     {}
    :line      {}
    :list      {:ol {:numbered true}
                :ul {:symbol   "• "}}
    :paragraph {}
-   :spacer 0})
+   :spacer    0})
 ```
 
 ### Documentation
@@ -83,7 +80,7 @@ Any custom map provided will the merged to following the default map used by the
 user=> (markdown->clj-pdf {} "[I'm an inline-style link](https://www.google.com)")
 [:paragraph {} [:anchor {:target "https://www.google.com"} "I'm an inline-style link"]]
 ```
-Title args are ignored, since it is not supported in clj-pdf:
+Note that any title arg in markdown will be ignored, since it is not supported in clj-pdf:
 ```clojure
 user=> (markdown->clj-pdf {} "[I'm an inline-style link with title](https://www.google.com \"Google's Homepage\")")
 [:paragraph {} [:anchor {:target "https://www.google.com"} "I'm an inline-style link with title"]]
@@ -106,8 +103,9 @@ user=> (markdown->clj-pdf {:heading {:h2 {:style {:size 20}}}} "## Title _Big_")
 #### image
 ```clojure
 user=> (markdown->clj-pdf {} "![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png \"Logo Title Text 1\")")
-[:image {:xscale 1, :yscale 1, :align :center, :pad-left 10, :pad-right 10, :annotation ["Logo Title Text 1" "alt text"]} "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png"]
+[:Image {:annotation ["Logo Title Text 1" "alt text"]} "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png"]
 ```
+
 
 #### line
 ```clojure
@@ -209,9 +207,7 @@ user=> (markdown->clj-pdf {:spacer 10} "This is
   #_=> a huge spacer")
 [:paragraph {} "This is" [:spacer 10] "a huge spacer"]
 ```
-Note that if you break the line twice, you don't get multiple paragraphs instead of spacers:
-```clojure
-Also, you can create multiple paragraphs by breaking the line twice like so:
+Note that if you break the line twice, you will get multiple paragraphs instead of spacers:
 
 ```clojure
 user=> (markdown->clj-pdf {} "This is paragraph 1
