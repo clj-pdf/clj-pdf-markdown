@@ -12,9 +12,9 @@ This is alpha software. Possible breaking changes can be expected. Feel fres to 
 
 ## Installation
 
-[SOON] Add the following dependency to `project.clj`:
+Add the following dependency to `project.clj`:
 
-    [clj-pdf-markdown "0.1.0"]
+[![clojars project](http://clojars.org/clj-pdf-markdown/latest-version.svg)](http://clojars.org/clj-pdf-markdown)
 
 
 ## Under the hood
