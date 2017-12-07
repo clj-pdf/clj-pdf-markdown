@@ -77,7 +77,6 @@
             [:image {:annotation ["Logo Title Text 1" "alt text"]} 
              "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png"]])))
   
-  
   (testing "spacer"
     (is (= (markdown->clj-pdf {} "This is\na spacer.")
            [:paragraph {} "This is" [:spacer 0] "a spacer."]))
