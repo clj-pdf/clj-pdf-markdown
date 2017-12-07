@@ -92,7 +92,7 @@ user=> (markdown->clj-pdf {} "# Title _1_")
 [:heading {:style {:size 16}} "Title " [:phrase {:style :italic} "1"]]
 
 user=> (markdown->clj-pdf {} "## Sub-title _1_")
-[:heading {:style {:size 15}} "Sub-title " [:phrase {:style :italic} "1"]]
+[:heading {:style {:size 5}} "Sub-title " [:phrase {:style :italic} "1"]]
 ```
 To change pdf args, you must specify which level of heading it is, from `:h1` to `:h6`:
 ```clojure
@@ -103,7 +103,7 @@ user=> (markdown->clj-pdf {:heading {:h2 {:style {:size 20}}}} "## Title _Big_")
 #### image
 ```clojure
 user=> (markdown->clj-pdf {} "![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png \"Logo Title Text 1\")")
-[:Image {:annotation ["Logo Title Text 1" "alt text"]} "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png"]
+[:image {:annotation ["Logo Title Text 1" "alt text"]} "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png"]
 ```
 
 
@@ -166,7 +166,7 @@ Note that, even if in the example we got rid of `:paragraph` tag, a vector will 
 
 ```clojure
 user=> (markdown->clj-pdf {:paragraph false} "Content with some *style*.")
-["This is a " [:phrase {:style :italic} "test"] "."]
+["Content with some " [:phrase {:style :italic} "style"] "."]
 ```
 
 Undercover, clj-pdf will expand sequences containing elements:
@@ -189,10 +189,10 @@ is equivalent to
 Àlso, when a markdown string contains an image, paragraph wrapping gets disabled to allow clj-pdf to render the image:
 ```clojure
 user=> (markdown->clj-pdf {} "![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png \"Logo Title Text 1\")")
-[:image {:xscale 1, :yscale 1, :pad-left 10, :pad-right 10, :annotation ["Logo Title Text 1" "alt text"]} "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png"]
+[:image {:annotation ["Logo Title Text 1" "alt text"]} "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png"]
 
 user=> (markdown->clj-pdf {} "This is an image: ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png \"Logo Title Text 1\")")
-["This is an image: " [:image {:xscale 1, :yscale 1, :pad-left 10, :pad-right 10, :annotation ["Logo Title Text 1" "alt text"]} "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png"]]
+["This is an image: " [:image {:annotation ["Logo Title Text 1" "alt text"]} "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png"]]
 ```
 See: [Image not showing this bellow paragraph #107](https://github.com/yogthos/clj-pdf/issues/107)
 
