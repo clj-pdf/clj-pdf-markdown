@@ -165,7 +165,7 @@ user=> (markdown->clj-pdf {:paragraph false} "Naked content.")
 Note that, even if in the example we got rid of `:paragraph` tag, a vector will wrap content if more than one element is returned:
 
 ```clojure
-user=> (markdown->clj-pdf {:paragraph false} "Content with some *style*."))
+user=> (markdown->clj-pdf {:paragraph false} "Content with some *style*.")
 ["This is a " [:phrase {:style :italic} "test"] "."]
 ```
 
