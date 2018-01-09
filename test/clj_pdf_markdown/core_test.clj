@@ -39,14 +39,6 @@
             {:heading {:h2 {:style {:size 20}}}} 
             "## Title _Big_"))))
   
-;; Migrate in readme:
-
-;; images can also be inserted inline with other text by wrapping it inside
-;; of a chunk element
-
-;; x and y values provided to the chunk are relative offsets for the image.
-;; the image element itself still accepts it's normal properties shown above
-
   (testing "image"
     (is (= [:image {:annotation ["Logo Title Text 1" "alt text"]} "http://via.placeholder.com/350x150"]
            (markdown->clj-pdf {} 
@@ -95,7 +87,11 @@
            (markdown->clj-pdf {} "This is simple text")))
     
     (is (= [:paragraph {} "Content with some " [:phrase {:style :italic} "style"] "."]
-           (markdown->clj-pdf {} "Content with some *style*."))))
+           (markdown->clj-pdf {} "Content with some *style*.")))
+
+    ;; IMPROVE THIS (UNWRAP GLOBALLY BUT KEEP ONE PARAGRAPH)
+    (is (= [[:paragraph {} "This is simple text"]]
+           (markdown->clj-pdf {:wrap {:unwrap-singleton? false} "This is simple text"))))
   
   (testing "spacer"
     (is (= [:paragraph {} "This is" [:spacer 0] "a spacer."]
