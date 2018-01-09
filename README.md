@@ -2,13 +2,15 @@
 
 A small Clojure library for converting [CommonMark][1] markdown to [clj-pdf][2] syntax. 
 
-This library relies on top of [commonmark-hiccup][3].
+At least for now, this library relies on top of [commonmark-java][3] which is a java-based markdown parser.
 
 This is alpha software. Possible breaking changes can be expected. Feel free to contribute!
 
+Note that clj-pdf-markdown is built for configurability, not performance.
+
 [1]: http://spec.commonmark.org/
 [2]: https://github.com/yogthos/clj-pdf
-
+[3]: https://github.com/atlassian/commonmark-java
 
 ## Installation
 
@@ -16,17 +18,6 @@ Add the following dependency to `project.clj`:
 
 [![clojars project](http://clojars.org/clj-pdf-markdown/latest-version.svg)](http://clojars.org/clj-pdf-markdown)
 
-
-## Under the hood
-
-clj-pdf-markdown is built on top of [commonmark-hiccup][3] parser (itself built on top of [commonmark-java][4]) which transforms the CommonMark AST to Hiccup-compatible Clojure data structures. 
-
-clj-pdf-markdown modifies commonmark-hiccup condifguration to render clj-pdf syntax instead of Hiccup or HTML.
-
-Like commonmark-hiccup, clj-pdf-markdown is built for configurability, not performance.
-
-[3]: https://github.com/bitterblue/commonmark-hiccup
-[4]: https://github.com/atlassian/commonmark-java
 
 ## Usage
 
@@ -63,7 +54,12 @@ Any custom map provided will the merged to following the default map used by the
    :list      {:ol {:numbered true}
                :ul {:symbol   "• "}}
    :paragraph {}
-   :spacer    0})
+   :spacer    {:allow-extra-line-breaks? true
+               :single-value 0
+               :extra-starting-value 0}
+   :wrap {:unwrap-singleton? true
+          :global-wrapper :vector ;; :paragraph or :vector 
+          }})
 ```
 
 ### Documentation
@@ -77,13 +73,26 @@ Any custom map provided will the merged to following the default map used by the
 
 #### anchor
 ```clojure
-user=> (markdown->clj-pdf {} "[I'm an inline-style link](https://www.google.com)")
-[:paragraph {} [:anchor {:target "https://www.google.com"} "I'm an inline-style link"]]
+user=> (markdown->clj-pdf {} "[I'm a single link](https://www.google.com)")
+[:anchor {:target "https://www.google.com"} "I'm a single link"]
 ```
 Note that any title arg in markdown will be ignored, since it is not supported in clj-pdf:
 ```clojure
-user=> (markdown->clj-pdf {} "[I'm an inline-style link with title](https://www.google.com \"Google's Homepage\")")
-[:paragraph {} [:anchor {:target "https://www.google.com"} "I'm an inline-style link with title"]]
+user=> (markdown->clj-pdf {} "[I'm a single link with title](https://www.google.com \"Google's Homepage\")")
+[:anchor {:target "https://www.google.com"} "I'm a single link with title"]
+```
+When not alone, the anchor will be wrapped in paragraph.
+```clojure
+user=> (markdown->clj-pdf {} "Text followed by: [a link](https://www.google.com)")
+[:paragraph {} 
+ "Text followed by: " 
+ [:anchor {:target "https://www.google.com"} 
+ "a link"]] 
+             
+user=> (markdown->clj-pdf {} "[link 1](https://www.google.com)[link 2](https://www.yahoo.com)")
+[:paragraph {} 
+ [:anchor {:target "https://www.google.com"} "link 1"] 
+ [:anchor {:target "https://www.yahoo.com"} "link 2"]]
 ```
 
 #### heading
@@ -104,6 +113,19 @@ user=> (markdown->clj-pdf {:heading {:h2 {:style {:size 20}}}} "## Title _Big_")
 ```clojure
 user=> (markdown->clj-pdf {} "![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png \"Logo Title Text 1\")")
 [:image {:annotation ["Logo Title Text 1" "alt text"]} "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png"]
+```
+Images can also be inserted inline with other text by wrapping it inside of a chunk element.
+```clojure
+user=> (markdown->clj-pdf {} "This is an image: ![alt text](http://via.placeholder.com/350x150 \"Logo Title Text 1\")")
+[[:paragraph {} "Text before"] 
+ [:line {}] 
+ [:paragraph {} "text after"]]
+```
+Also, chunk will be added if x and y values are provided in image sub-map. These are relative offsets for the image. The image element itself still accepts it's normal properties shown above.
+```clojure
+user=> (markdown->clj-pdf {:image {:x 10 :y 10}} "![alt text](http://via.placeholder.com/350x150 \"Logo Title Text 1\")")
+[:chunk {:x 10 :y 10} [:image {:annotation ["Logo Title Text 1" "alt text"]} "http://via.placeholder.com/350x150"]]
+
 ```
 
 
@@ -149,52 +171,35 @@ user=> (markdown->clj-pdf {:list {:ol {:roman true}}} "1. This is the first item
 ```
 
 #### paragraph
-By default, the library will wrap strings in paragraph except if it contains images or lists. 
+By default, a string will be wraped in paragraph except if it is plain and alone.
 ```clojure
 user=> (markdown->clj-pdf {} "This is simple text")
-[:paragraph {} "This is simple text"]
+"This is simple text"
+user=> (markdown->clj-pdf {} "Content with some *style*.")
+[:paragraph {} "Content with some " [:phrase {:style :italic} "style"] "."]
 ```
 
-A boolean can also be passed as a value of clj-pdf syntax element like `:paragraph`. This will renders the content inside the element. :
-
+Note that, you don't want to unwrap single strings, you can specify it:
 ```clojure
-user=> (markdown->clj-pdf {:paragraph false} "Naked content.")
-"Naked content."
+user=> (markdown->clj-pdf {:wrap {:unwrap-singleton? false} "This is simple text")
+[[:paragraph {} "This is simple text"]]
+
 ```
-
-Note that, even if in the example we got rid of `:paragraph` tag, a vector will wrap content if more than one element is returned:
-
-```clojure
-user=> (markdown->clj-pdf {:paragraph false} "Content with some *style*.")
-["Content with some " [:phrase {:style :italic} "style"] "."]
-```
-
-Undercover, clj-pdf will expand sequences containing elements:
+When there is more than one element at the document level, it gets globally wrapped in a vector. Undercover, clj-pdf will expand sequences containing elements:
 ``` 
 (clj-pdf.core/pdf
  [{}
-   ["This is a " [:phrase {:style :italic} "test"] "."]
+  [[:paragraph "1"] [:paragraph "2"]]]
  "doc.pdf")
  ```
 is equivalent to
 ```
 (clj-pdf.core/pdf
  [{}
-   "This is a "
-   [:phrase {:style :italic} "test"] 
-   "."
+  [:paragraph "1"] 
+  [:paragraph "2"]]
  "doc.pdf")
 ```
-
-Àlso, when a markdown string contains an image, paragraph wrapping gets disabled to allow clj-pdf to render the image:
-```clojure
-user=> (markdown->clj-pdf {} "![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png \"Logo Title Text 1\")")
-[:image {:annotation ["Logo Title Text 1" "alt text"]} "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png"]
-
-user=> (markdown->clj-pdf {} "This is an image: ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png \"Logo Title Text 1\")")
-["This is an image: " [:image {:annotation ["Logo Title Text 1" "alt text"]} "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png"]]
-```
-See: [Image not showing this bellow paragraph #107](https://github.com/yogthos/clj-pdf/issues/107)
 
 #### spacer
 
@@ -203,7 +208,7 @@ user=> (markdown->clj-pdf {} "This is
   #_=> a spacer.")
 [:paragraph {} "This is" [:spacer 0] "a spacer."]
 
-user=> (markdown->clj-pdf {:spacer 10} "This is
+user=> (markdown->clj-pdf {:spacer {:single-value 10}} "This is
   #_=> a huge spacer")
 [:paragraph {} "This is" [:spacer 10] "a huge spacer"]
 ```
@@ -217,6 +222,32 @@ user=> (markdown->clj-pdf {} "This is paragraph 1
   #_=> paragraph 3")
 [[:paragraph {} "This is paragraph 1"] [:paragraph {} "paragraph 2"] [:paragraph {} "paragraph 3"]]
 ```
+Also, by default, clj-pdf-markdown render extra line-breaks (third+)
+```clojure
+user=> (markdown->clj-pdf {:spacer {:extra-starting-value 0 :allow-extra-line-breaks? true}} 
+        "Text\n\n\nText after 3 line-breaks\n\n\n\n\nText after 5 line-breaks")
+[[:paragraph {} "Text"] 
+ [:paragraph {} [:spacer 0] "Text after 3 line-breaks"] 
+ [:paragraph {} [:spacer 2] "Text after 5 line-breaks"]]
+user=> (markdown->clj-pdf {:spacer {:extra-starting-value 1 :allow-extra-line-breaks? true}} 
+        "Text\n\n\nText after 3 line-breaks\n\n\n\n\nText after 5 line-breaks")
+[[:paragraph {} "Text"] 
+ [:paragraph {} [:spacer 1] "Text after 3 line-breaks"] 
+ [:paragraph {} [:spacer 3] "Text after 5 line-breaks"]]
+```
+Note that extra line-breaks can be disabled. 
+```clojure
+user=> (markdown->clj-pdf {:spacer {:extra-starting-value 1 :allow-extra-line-breaks? false}}
+        "Text\n\n\nText after 3 line-breaks\n\n\n\n\nText after 5 line-breaks")
+[[:paragraph {} "Text"] 
+ [:paragraph {} "Text after 3 line-breaks"] 
+ [:paragraph {} "Text after 5 line-breaks"]]
+```
+## Changelog
+0.2.0 (Jan 9, 2018)
+* removed commonmark-hiccup dep
+* controled wrapping behavior with :wrap option
+* handles extra spacers
 
 
 ## License
