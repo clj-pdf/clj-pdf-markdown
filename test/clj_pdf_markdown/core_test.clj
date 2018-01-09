@@ -91,8 +91,8 @@
 
     ;; IMPROVE THIS (UNWRAP GLOBALLY BUT KEEP ONE PARAGRAPH)
     (is (= [[:paragraph {} "This is simple text"]]
-           (markdown->clj-pdf {:wrap {:unwrap-singleton? false} "This is simple text"))))
-  
+           (markdown->clj-pdf {:wrap {:unwrap-singleton? false}} "This is simple text"))))
+
   (testing "spacer"
     (is (= [:paragraph {} "This is" [:spacer 0] "a spacer."]
            (markdown->clj-pdf {} "This is\na spacer.")))
