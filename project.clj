@@ -4,4 +4,6 @@
   :license {:name "Eclipse Public License"
             :url "https://github.com/leontalbot/clj-pdf-markdown"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [commonmark-hiccup "0.1.0"]])
+                 [org.clojure/data.xml "0.0.8"]
+                 [com.atlassian.commonmark/commonmark "0.8.0"]])
+
