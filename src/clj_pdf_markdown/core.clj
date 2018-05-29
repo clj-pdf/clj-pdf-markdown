@@ -190,8 +190,7 @@
 
 (defmulti render 
   (fn [pdf-config node] 
-    (do (println (str "bean: " (bean node))) 
-        (commonmark-node->class-k node)))
+    (commonmark-node->class-k node))
   :hierarchy render-hierarchy)
 
 (defmethod render :Document [pdf-config node] 
