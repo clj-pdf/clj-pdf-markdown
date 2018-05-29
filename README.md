@@ -244,6 +244,9 @@ user=> (markdown->clj-pdf {:spacer {:extra-starting-value 1 :allow-extra-line-br
  [:paragraph {} "Text after 5 line-breaks"]]
 ```
 ## Changelog
+0.2.1 (May 29, 2018)
+* removed debugging `println` (thanks to @svdm)
+
 0.2.0 (Jan 9, 2018)
 * removed commonmark-hiccup dep
 * controled wrapping behavior with :wrap option
