@@ -21,6 +21,8 @@
    :list      {:ol {:numbered true}
                :ul {:symbol   "• "}}
    :paragraph {}
+   :quote     {:style :italic
+               :color [64 64 64]}
    :spacer    {:allow-extra-line-breaks? true
                :single-value 0
                :extra-starting-value 0}
@@ -170,7 +172,7 @@
 
 (def render-derivals
   {:LineBreak [:HardLineBreak :SoftLineBreak]
-   :Literal   [:BlockQuote :FencedCodeBlock :IndentedCodeBlock :Code]})
+   :Literal   [:FencedCodeBlock :IndentedCodeBlock :Code]})
 
 (defn make-hierarchy-from-derivals [derivals]
   (reduce (fn [hier [child parent]] (derive hier child parent)) 
@@ -260,6 +262,11 @@
 
 (defmethod render :HtmlInline [pdf-config node]
   (->> node .getLiteral (html-tag->clj-pdf pdf-config)))
+
+(defmethod render :BlockQuote [pdf-config node]
+  (->> node
+       (render-children* pdf-config)
+       (into [:paragraph (:quote pdf-config)])))
 
 (defmethod render :Literal [pdf-config node]
   (.getLiteral node))

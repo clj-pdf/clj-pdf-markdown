@@ -54,6 +54,8 @@ Any custom map provided will the merged to following the default map used by the
    :list      {:ol {:numbered true}
                :ul {:symbol   "• "}}
    :paragraph {}
+   :quote     {:style :italic
+               :color [64 64 64]}
    :spacer    {:allow-extra-line-breaks? true
                :single-value 0
                :extra-starting-value 0}
@@ -69,6 +71,7 @@ Any custom map provided will the merged to following the default map used by the
 - [line](#line)
 - [list](#list)
 - [paragraph](#paragraph)
+- [quote](#quote)
 - [spacer](#spacer)
 
 #### anchor
@@ -199,6 +202,15 @@ is equivalent to
   [:paragraph "1"] 
   [:paragraph "2"]]
  "doc.pdf")
+```
+
+#### quote
+```clojure
+user=> (markdown->clj-pdf {} "> This is a blockquote")
+[:paragraph {:style :italic :color [64 64 64]} "This is a blockquote"]
+
+user=> (markdown->clj-pdf {:quote {:style :bold :indent 20} "> Quote with custom styling")
+[:paragraph {:style :bold :indent 20 :color [64 64 64]} "Quote with custom styling"]
 ```
 
 #### spacer
