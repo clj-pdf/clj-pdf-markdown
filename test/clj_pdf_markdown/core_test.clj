@@ -93,6 +93,19 @@
     (is (= [[:paragraph {} "This is simple text"]]
            (markdown->clj-pdf {:wrap {:unwrap-singleton? false}} "This is simple text"))))
 
+  (testing "blockquote"
+    (is (= [:paragraph {:style :italic :color [64 64 64]} "This is a quote"]
+           (markdown->clj-pdf {} "> This is a quote")))
+
+    (is (= [:paragraph {:style :bold :color [64 64 64]} "Styled quote"]
+           (markdown->clj-pdf {:quote {:style :bold}} "> Styled quote")))
+
+    (is (= [:paragraph {:style :italic, :color [64 64 64]}
+            [:paragraph {} "This is a quote" [:spacer 0]
+             "with multiple lines" [:spacer 0]
+             [:phrase {:style :italic} "and markup!"]]]
+           (markdown->clj-pdf {} "> This is a quote\n> with multiple lines\n> *and markup!*"))))
+
   (testing "spacer"
     (is (= [:paragraph {} "This is" [:spacer 0] "a spacer."]
            (markdown->clj-pdf {} "This is\na spacer.")))
