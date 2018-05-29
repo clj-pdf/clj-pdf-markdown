@@ -1,4 +1,4 @@
-(defproject clj-pdf-markdown "0.2.0"
+(defproject clj-pdf-markdown "0.2.1"
   :description "Library for rendering markdown to clj-pdf data-structure syntax."
   :url "https://github.com/leontalbot/clj-pdf-markdown"
   :license {:name "Eclipse Public License"
