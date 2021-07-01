@@ -81,7 +81,12 @@
             "List regular item"]
            (markdown->clj-pdf {} 
             "* List **styled item**\n* List regular item"))))
-  
+
+  (testing "nested lists"
+    (is (->> (markdown->clj-pdf {} "* List item one\n  * List item two (nested)")
+             (tree-seq sequential? #(drop 2 %))
+             (some #{"List item two (nested)"}))))
+
   (testing "paragraph"
     (is (= "This is simple text"
            (markdown->clj-pdf {} "This is simple text")))
