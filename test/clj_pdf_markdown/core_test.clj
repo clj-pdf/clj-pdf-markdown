@@ -63,25 +63,32 @@
             "Text before\n***\nText after"))))
 
   (testing "list"
-    (is (= [:list {:symbol "• "} "List item one" "List item two"]
+    (is (= [:phrase {}
+            [:list {:symbol "• "} "List item one" "List item two"]]
            (markdown->clj-pdf {} "* List item one\n* List item two")))
 
-    (is (= [:list {:numbered true} 
-            "This is the first item" "This is the second item"]
-           (markdown->clj-pdf {} 
+    (is (= [:phrase {}
+            [:list {:numbered true}
+             "This is the first item" "This is the second item"]]
+           (markdown->clj-pdf {}
             "1. This is the first item\n2. This is the second item")))
 
-    (is (= [:list {:symbol "* "} "List item one" "List item two"]
-           (markdown->clj-pdf 
-            {:list {:ul {:symbol "* "}}} 
+    (is (= [:phrase {}
+            [:list {:symbol "* "} "List item one" "List item two"]]
+           (markdown->clj-pdf
+            {:list {:ul {:symbol "* "}}}
             "* List item one\n* List item two")))
 
-    (is (= [:list {:symbol "• "} 
-            [:paragraph {} "List " [:phrase {:style :bold} "styled item"]] 
-            "List regular item"]
-           (markdown->clj-pdf {} 
-            "* List **styled item**\n* List regular item"))))
-  
+    (is (= [:phrase {}
+            [:list {:symbol "• "}
+             [:paragraph {} "List item one"]
+             [:phrase {}
+              [:list {:symbol "• "}
+               "List item two (nested)"]]]]
+           (markdown->clj-pdf
+            {}
+            "* List item one\n  * List item two (nested)"))))
+
   (testing "paragraph"
     (is (= "This is simple text"
            (markdown->clj-pdf {} "This is simple text")))

@@ -212,15 +212,19 @@
   (.getLiteral node))
 
 (defmethod render :BulletList [pdf-config node]
-  (into [:list (get-in pdf-config [:list :ul])]
-        (render-children* pdf-config node)))
+  [:phrase
+   {}
+   (into [:list (get-in pdf-config [:list :ul])]
+         (apply concat (render-children* pdf-config node)))])
 
-(defmethod render :OrderedList [pdf-config node]  
-  (into [:list (get-in pdf-config [:list :ol])] 
-        (render-children* pdf-config node)))
+(defmethod render :OrderedList [pdf-config node]
+  [:phrase
+   {}
+   (into [:list (get-in pdf-config [:list :ol])]
+         (apply concat (render-children* pdf-config node)))])
 
 (defmethod render :ListItem [pdf-config node]
-  (->> node (render-children* pdf-config) first))
+  (render-children* pdf-config node))
 
 (defmethod render :Link [pdf-config node] 
   (into [:anchor (merge (:anchor pdf-config) {:target (node-destination node)})]
